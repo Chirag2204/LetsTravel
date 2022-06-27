@@ -13,15 +13,16 @@ export const Map = () => {
   return (
     <div className={classes.mapContainer}>
       <GoogleMapReact
-          bootstrapURLKeys={{ key: 'AIzaSyCfQpCTOhWjaUDtU9xYPwyKH1j5H9XEQ9c' }}
+        bootstrapURLKeys={{ key: 'AIzaSyCfQpCTOhWjaUDtU9xYPwyKH1j5H9XEQ9c' }}
+        center={coordinates}
         defaultCenter={{ ...coordinates }}
-          defaultZoom={15}
+        defaultZoom={14}
+        margin={[50, 50, 50, 50]}
+        options={''}
+        onChange={''}
+        onChildClick={''}
       >
-        <AnyReactComponent
-            lat={59.955413}
-            lng={30.337844}
-            text="My Marker"
-          />
+        
         </GoogleMapReact>
     </div>
   )
