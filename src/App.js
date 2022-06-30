@@ -5,10 +5,12 @@ import { List } from "./components/List/List";
 import { PlaceDetails } from "./components/PlaceDetails/PlaceDetails";
 import { Map } from "./components/Map/Map";
 import { CropFree } from "@material-ui/icons";
-import { getPlacesDetails } from "./api/index";
+import { getPlacesDetails,getWeatherData } from "./api/index";
+
 
 function App() {
   const [places, setPlaces] = useState([])
+  const [weatherData,setWeatherData]=useState([])
   const [filteredPlaces, setfilteredPlaces] = useState([])
 
   const [coordinates, setCoordinates] = useState({ lat: 0, lng: 0 })
@@ -18,6 +20,7 @@ function App() {
   const [childClick, setChildClick] = useState(null)
   const [isloading, setIsloading] = useState(false)
 
+  const [autocomplete, setAutocomplete] = useState(null);
    const [type, setType] = useState('restaurants')
   const [rating, setRating] = useState(0)
   
@@ -29,28 +32,47 @@ function App() {
   }, [])
   
  
-  useEffect(() => {
-    // console.log(coordinates);
-    // console.log(bounds);
-    setIsloading(true)
-    // console.log('log1');
-    // console.log(bounds);
-    getPlacesDetails(type,bounds)
-      .then((data) => {
-        // console.log(data);
-        setPlaces(data)
-        setfilteredPlaces([])
-        setRating(0)
-        setIsloading(false)
-      })
-    
-  }, [coordinates, bounds,  type])
+  
   
   useEffect(() => {
       setfilteredPlaces(places.filter((place)=> place.rating>rating))
     }
-  , [rating])
+    , [rating])
   
+  useEffect(() => {
+    // console.log(coordinates);
+    // console.log(bounds);
+    if (bounds) {
+       setIsloading(true)
+    // console.log('log1');
+    // console.log(bounds);
+
+    getWeatherData(coordinates.lat, coordinates.lng)
+      .then((data) => setWeatherData(data))
+    
+    
+    getPlacesDetails(type,bounds)
+      .then((data) => {
+        // console.log(data);
+        setPlaces(data.filter((place) => place.name && place.num_reviews > 0));
+          
+        setfilteredPlaces([])
+        setRating(0)
+        setIsloading(false)
+      })
+    }
+   
+    
+  }, [ bounds,  type])
+  
+ const onLoad = (autoC) => setAutocomplete(autoC);
+
+  const onPlaceChanged = () => {
+    const lat = autocomplete.getPlace().geometry.location.lat();
+    const lng = autocomplete.getPlace().geometry.location.lng();
+
+    setCoordinates({ lat, lng });
+  };
   
   return (
     <>
@@ -60,7 +82,7 @@ function App() {
        
           <Grid item xs={12} md={4}>
             <List
-              places={filteredPlaces.length? filteredPlaces :places}
+              places={filteredPlaces.length ? filteredPlaces : places}
               childClick={childClick}
               isloading={isloading}   
               type={type}
@@ -76,6 +98,7 @@ function App() {
               coordinates={coordinates}
               places={filteredPlaces.length ? filteredPlaces :places}
               setChildClick={setChildClick}
+              weatherData={weatherData}
             />
           </Grid>
         </Grid>
